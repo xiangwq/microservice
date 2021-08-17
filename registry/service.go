@@ -2,7 +2,7 @@ package registry
 
 // Service 服务抽象
 type Service struct {
-	Name  string   `json:"name"`
+	Name  string  `json:"name"`
 	Nodes []*Node `json:"nodes"`
 }
 
@@ -11,5 +11,5 @@ type Node struct {
 	Id     string `json:"id"`
 	IP     string `json:"ip"`
 	Port   uint   `json:"port"`
-	Weight uint   `json:"weight"`
+	Weight int    `json:"weight"`
 }
