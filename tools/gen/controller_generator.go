@@ -1,14 +1,13 @@
 package main
 
 import (
-	"bytes"
 	"fmt"
 	"github.com/emicklei/proto"
+	"microservice/util"
 	"os"
 	"path"
 	"strings"
 	"text/template"
-	"unicode"
 )
 
 type CtrlGenerator struct {
@@ -40,6 +39,9 @@ func (c *CtrlGenerator) generateRpc(opt *Option, metaData *ServiceMetaData) (err
 		tmpName := ToUnderScoreString(rpc.Name)
 		filename := path.Join(opt.Output, "controller", fmt.Sprintf("%s.go", strings.ToLower(tmpName)))
 		fmt.Printf("filename is %s\n", filename)
+		if util.IsFileExist(filename) {
+			continue
+		}
 		file, err = os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 		if err != nil {
 			fmt.Printf("open file:%s failed, err:%v\n", filename, err)
@@ -73,23 +75,7 @@ func (c *CtrlGenerator) render(file *os.File, data string, metaData *RpcMeta) (e
 	return
 }
 
-func ToUnderScoreString(name string) string {
-	var buffer bytes.Buffer
-	for i, r := range name {
-		if unicode.IsUpper(r) {
-			if i != 0 {
-				buffer.WriteString("_")
-			}
-			buffer.WriteString(fmt.Sprintf("%c", unicode.ToLower(r)))
-		} else {
-			buffer.WriteString(fmt.Sprintf("%c", unicode.ToLower(r)))
-		}
-	}
-
-	return buffer.String()
-}
-
 func init() {
 	dir := &CtrlGenerator{}
-	Register("controller_generate", dir)
+	RegisterServiceGenerator("controller_generate", dir)
 }

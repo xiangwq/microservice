@@ -18,20 +18,3 @@ func Chain(outer Middleware, others ...Middleware) Middleware {
 		return outer(next)
 	}
 }
-
-func Use(m ...Middleware) {
-	userMiddleware = append(userMiddleware, m...)
-}
-
-func BuildServerMiddleware(handle MiddlewareFunc) MiddlewareFunc {
-	var mids []Middleware
-	if len(userMiddleware) != 0 {
-		mids = append(mids, userMiddleware...)
-	}
-
-	if len(mids) != 0 {
-		m := Chain(mids[0], mids[1:]...)
-		return m(handle)
-	}
-	return handle
-}

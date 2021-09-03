@@ -5,9 +5,9 @@ package controller
 import(
 	"context"
      {{ if not .Prefix}}
-		"{{.Package.Name}}"
+		"generate/{{.Package.Name}}"
 	{{else}}
-    	"{{.Prefix}}/generate"
+    	"{{.Prefix}}/generate/{{.Package.Name}}"
 	{{end}}
 )
 
@@ -21,8 +21,7 @@ func (s *{{.Rpc.Name}}Controller) CheckParams(ctx context.Context, r *{{.Package
 }
 
 //SayHello函数的实现
-func (s *{{.Rpc.Name}}Controller) Run(ctx context.Context, r *{{.Package.Name}}.{{.Rpc.RequestType}}) (
-	resp*{{.Package.Name}}.{{.Rpc.ReturnsType}}, err error) {
+func (s *{{.Rpc.Name}}Controller) Run(ctx context.Context, r *{{.Package.Name}}.{{.Rpc.RequestType}}) (resp*{{.Package.Name}}.{{.Rpc.ReturnsType}}, err error) {
 	return
 }
 

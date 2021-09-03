@@ -1,31 +1,71 @@
 package main
 
+//client.go
+
 import (
 	"context"
+	"os"
+	"time"
+
+	pb "microservice/tools/gen/output/generate"
+	//"golang.org/x/net/context"
 	"google.golang.org/grpc"
-	"log"
-	pb "microservice/example/grpc_example/proto"
+	"google.golang.org/grpc/metadata"
+	"microservice/logs"
 )
 
-const address = "localhost:30010"
+const (
+	address     = "localhost:8080"
+	defaultName = "world"
+)
 
-func main() {
+func rawClientExample() {
 	conn, err := grpc.Dial(address, grpc.WithInsecure())
 	if err != nil {
-		log.Fatalln("dial failed :", address, err.Error())
+		logs.Error(context.Background(), "did not connect: %v", err)
+		return
 	}
-
 	defer conn.Close()
-
 	c := pb.NewHelloServiceClient(conn)
 
-	name := "test"
+	name := defaultName
+	if len(os.Args) > 1 {
+		name = os.Args[1]
+	}
+	for {
+		ctx := context.Background()
+		ctx = metadata.AppendToOutgoingContext(ctx, "koala_trace_id", "888888888888888888888888888")
+		r, err := c.SayHello(ctx, &hello.HelloRequest{Name: name})
+		if err != nil {
+			logs.Error(ctx, "could not greet: %v", err)
+			continue
+		}
+		_ = r
+		logs.Error(ctx, "Greeting: %s", r.Reply)
+		time.Sleep(time.Millisecond * 10)
+	}
+}
 
-	r, err := c.SayHello(context.TODO(), &pb.HelloRequest{Name: name})
-
+func myClientExample() {
+	client := NewHelloClient("hello")
+	ctx := context.Background()
+	//rpc client.SayHelloV1的第一版封装
+	//resp, err := client.SayHelloV1(ctx, &hello.HelloRequest{Name: "test my client"})
+	//client.SayHello基于中间件架构的封装
+	resp, err := client.SayHello(ctx, &pb.HelloRequest{Name: "test my client"})
 	if err != nil {
-		log.Fatalln("request failed: ", err.Error())
+		logs.Error(ctx, "could not greet: %v", err)
+		return
 	}
 
-	log.Fatalln(r.Name)
+	logs.Info(ctx, "Greeting: %s", resp.Reply)
+	return
+}
+
+func main() {
+	//使用grpc原生client进行测试
+	//rawClientExample()
+	//使用我们封装的client进行测试
+	myClientExample()
+	logs.Stop()
 }

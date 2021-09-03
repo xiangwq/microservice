@@ -2,29 +2,27 @@ package main
 
 var main_template = `package main
 import (
-	"google.golang.org/grpc"
 	"log"
+	"microservice/server"
      {{ if not .Prefix}}
-	"generate"
+	"generate/{{.Package.Name}}"
 	"router"
 	{{else}}
-    	"{{.Prefix}}/generate"
-		"{{.Prefix}}/router"
+    "{{.Prefix}}/generate/{{.Package.Name}}"
+    "{{.Prefix}}/router"
 	{{end}}
-		"net"
 	)
 
-	var server = &router.RouterServer{}
-	const port = ":30011"
+	var routerServer = &router.RouterServer{}
 
     func main() {
-		lis, err := net.Listen("tcp", port)
+		err := server.Init("{{.Package.Name }}")
 		if err != nil {
-			log.Fatalln("failed to listen", err.Error())
+			log.Fatal("init service failed, err: $v", err)
+			return 
 		}
-
-		s := grpc.NewServer()
-		generate.Register{{ .Service.Name }}Server(s, server)
-		s.Serve(lis)
+	
+		{{.Package.Name}}.Register{{ .Service.Name }}Server(server.GRPCServer(), routerServer)
+		server.Run()
 	}
 `

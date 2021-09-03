@@ -132,6 +132,7 @@ func (e *EtcdRegistry) registerService(registerService *RegisterService) (err er
 		key := e.serviceNodePath(tmp)
 
 		_, err = e.client.Put(context.TODO(), key, string(data), clientv3.WithLease(resp.ID))
+		fmt.Printf("register etcd, k: %s, v:%s", key, string(data))
 		if err != nil {
 			return err
 		}

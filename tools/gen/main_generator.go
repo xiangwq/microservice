@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"microservice/util"
 	"os"
 	"path"
 	"text/template"
@@ -11,7 +12,11 @@ type MainGenerator struct {
 }
 
 func (m *MainGenerator) Run(opt *Option, metaData *ServiceMetaData) error {
-	filename := path.Join("./", opt.Output, "main/main.go")
+	filename := path.Join(opt.Output, "main/main.go")
+	fmt.Println(filename)
+	if util.IsFileExist(filename) {
+		return nil
+	}
 	fmt.Println(filename)
 	file, err := os.OpenFile(filename, os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0755)
 	if err != nil {
@@ -38,5 +43,5 @@ func (m *MainGenerator) render(file *os.File, s string, metaData *ServiceMetaDat
 
 func init() {
 	dir := &MainGenerator{}
-	Register("main_generate", dir)
+	RegisterServiceGenerator("main_generate", dir)
 }

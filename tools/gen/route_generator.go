@@ -41,5 +41,5 @@ func (d *RouterGenerator) render(file *os.File, data string, metaData *ServiceMe
 
 func init() {
 	gen := &RouterGenerator{}
-	Register("RouterGenerator", gen)
+	RegisterServiceGenerator("RouterGenerator", gen)
 }

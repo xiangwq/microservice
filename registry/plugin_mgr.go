@@ -18,7 +18,7 @@ type PluginMgr struct {
 }
 
 // 注册插件
-func (p *PluginMgr) registerPlugin(plugin Registry) (err error){
+func (p *PluginMgr) registerPlugin(plugin Registry) (err error) {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
@@ -37,6 +37,10 @@ func (p *PluginMgr) initRegistry(ctx context.Context, name string, opts ...Optio
 	defer p.lock.Unlock()
 
 	plugin, ok := p.plugins[name]
+	fmt.Println(len(p.plugins))
+	for k, v := range p.plugins {
+		fmt.Println("k:", k, "v:", v.Name())
+	}
 	if !ok {
 		return nil, fmt.Errorf("plugin %s is not exist", name)
 	}
@@ -46,12 +50,11 @@ func (p *PluginMgr) initRegistry(ctx context.Context, name string, opts ...Optio
 }
 
 // RegistryPlugin 注册插件
-func RegistryPlugin(plugin Registry)(err error) {
+func RegistryPlugin(plugin Registry) (err error) {
 	return pluginMgr.registerPlugin(plugin)
 }
 
 // InitRegistry 初始化
-func InitRegistry(ctx context.Context, name string, opts ...Option) (registry Registry, err error)  {
+func InitRegistry(ctx context.Context, name string, opts ...Option) (registry Registry, err error) {
 	return pluginMgr.initRegistry(ctx, name, opts...)
 }
-

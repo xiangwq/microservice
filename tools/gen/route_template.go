@@ -3,13 +3,14 @@ package main
 var router_template = `package router
 import(
 	"context"
-	"microservice/middleware"
+	"microservice/meta"
+	"microservice/server"
 	{{ if not .Prefix}}
-	"{{.Package.Name}}"
+	"generate/{{.Package.Name}}"
     "controller"
 	{{else}}
     "{{.Prefix}}/controller"
-    "{{.Prefix}}/{{.Package.Name}}"
+    "{{.Prefix}}/generate/{{.Package.Name}}"
 	{{end}}
 )
 
@@ -17,8 +18,12 @@ type RouterServer struct{}
 
 {{range .Rpc}}
 func (s *RouterServer) {{.Name}}(ctx context.Context, r *{{$.Package.Name}}.{{.RequestType}})(resp *{{$.Package.Name}}.{{.ReturnsType}}, err error){
-	mwFunc := middleware.BuildServerMiddleware(mw{{.Name}})
+    ctx = meta.InitServerMeta(ctx, "{{$.Package.Name}}", "{{.Name}}" )
+	mwFunc := server.BuildServerMiddleware(mw{{.Name}})
 	mwResp, err := mwFunc(ctx, r)
+	if err != nil {
+		return 
+	}
 	resp = mwResp.(*{{$.Package.Name}}.{{.ReturnsType}})
 	return resp, err
 }

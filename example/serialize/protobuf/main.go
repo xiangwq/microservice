@@ -9,6 +9,7 @@ import (
 
 func main() {
 	fmt.Println(1111)
+
 	var person test.Person
 	person.Id = 111
 	person.Name = "test"
